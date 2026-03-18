@@ -3,10 +3,12 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useNavbarLock } from "@/lib/context/navbar-lock-context";
 
 type NavLink = "home" | "events" | "create";
 
 const Navbar = () => {
+    const { isNavbarDisabled } = useNavbarLock();
     const pathname = usePathname();
     const router = useRouter();
     // Controls the mobile dropdown menu.
@@ -38,7 +40,15 @@ const Navbar = () => {
     const getLinkClass = (linkName: NavLink) =>
         activeLink === linkName ? "nav-cta" : "nav-link";
 
+    const guardNav = (e: React.MouseEvent<HTMLElement>) => {
+        if (!isNavbarDisabled) return false;
+        e.preventDefault();
+        e.stopPropagation();
+        return true;
+    };
+
     const handleGoHome = (e: React.MouseEvent<HTMLAnchorElement>) => {
+        if (guardNav(e)) return;
         e.preventDefault();
         setIsOpen(false);
         setActiveLink("home");
@@ -58,7 +68,7 @@ const Navbar = () => {
     return (
         <header>
             <nav aria-label="Main navigation" className="relative">
-                <Link href='/' className="logo" onClick={ handleGoHome}>
+                <Link href='/' className="logo" onClick={handleGoHome}>
                     <Image src="/icons/logo.png" alt="logo" width={24} height={24} />
                     <p>DevEvent</p>
                 </Link>
@@ -66,15 +76,20 @@ const Navbar = () => {
                 <button
                     type="button"
                     className="nav-menu-btn"
-                    onClick={() => setIsOpen((prev) => !prev)}
+                    disabled={isNavbarDisabled}
+                    aria-disabled={isNavbarDisabled}
+                    onClick={() => {
+                        if (isNavbarDisabled) return;
+                        setIsOpen((prev) => !prev);
+                    }}
                     aria-expanded={isOpen}
                     aria-controls="main-nav-links"
                     aria-label="Toggle menu"
                 >
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                        <rect y="3" width="20" height="2" rx="1" fill="currentColor"/>
-                        <rect y="9" width="20" height="2" rx="1" fill="currentColor"/>
-                        <rect y="15" width="20" height="2" rx="1" fill="currentColor"/>
+                        <rect y="3" width="20" height="2" rx="1" fill="currentColor" />
+                        <rect y="9" width="20" height="2" rx="1" fill="currentColor" />
+                        <rect y="15" width="20" height="2" rx="1" fill="currentColor" />
                     </svg>
                 </button>
 
@@ -96,7 +111,8 @@ const Navbar = () => {
                         <Link
                             href="/#events"
                             className={getLinkClass("events")}
-                            onClick={() => {
+                            onClick={(e) => {
+                                if (guardNav(e)) return;
                                 setIsOpen(false);
                                 setActiveLink("events");
                             }}
@@ -108,7 +124,8 @@ const Navbar = () => {
                         <Link
                             href="/events/create"
                             className={getLinkClass("create")}
-                            onClick={() => {
+                            onClick={(e) => {
+                                if (guardNav(e)) return;
                                 setIsOpen(false);
                                 setActiveLink("create");
                             }}
