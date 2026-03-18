@@ -59,11 +59,24 @@ export async function POST(req: NextRequest) {
 			{ status: 201 });
 	} catch (e) {
 		console.error('Event creation failed:', e);
-		return NextResponse.json(
-			{ message: 'Event Creation Failed', error: 'Unknown' },
-			{ status: 500 }
-		)
+		const errors = e as {
+			code?: number; keyPattern?: Record<string, unknown>;
+		};
+		if (errors?.code === 11000) {
+			return NextResponse.json(
+				{
+					message: 'An event with this title already exists.',
+					code: 'DUPLICATE_EVENT_TITLE',
+				},
+				{ status: 409 }
+			)
+
+		}
 	}
+	return NextResponse.json(
+		{ message: 'Event Creation Failed', error: 'Unknown' },
+		{ status: 500 }
+	)
 }
 
 export async function GET() {

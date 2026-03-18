@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
-import { Schibsted_Grotesk, Martian_Mono} from "next/font/google";
+import { Schibsted_Grotesk, Martian_Mono } from "next/font/google";
 import { Suspense } from "react";
 import "./globals.css";
 import LightRays from '@/components/LightRays';
 import Navbar from "@/components/Navbar";
+import { Toaster } from 'react-hot-toast';
+import { NavbarLockProvider } from "@/lib/context/navbar-lock-context";
 
 const schibstedGrotesk = Schibsted_Grotesk({
   variable: "--font-schibsted-grotesk",
@@ -30,11 +32,12 @@ export default function RootLayout({
       <body
         className={`${schibstedGrotesk.variable} ${martianMono.variable} min-h-screen antialiased`}
       >
-      <Suspense fallback={null}>
-        <Navbar />
-      </Suspense>
-        <div className="absolute inset-0 top-0 z-[-1] min-h-screen">
-          <LightRays
+        <NavbarLockProvider>
+          <Suspense fallback={null}>
+            <Navbar />
+          </Suspense>
+          <div className="absolute inset-0 top-0 z-[-1] min-h-screen">
+            <LightRays
               raysOrigin="top-center-offset"
               raysColor="#5dfeca"
               raysSpeed={0.5}
@@ -44,11 +47,38 @@ export default function RootLayout({
               mouseInfluence={0.02}
               noiseAmount={0.0}
               distortion={0.01}
-          />
-        </div>
-        <main>
-          {children}
-        </main>
+            />
+          </div>
+          <main>
+            {children}
+          </main>
+        </NavbarLockProvider>
+        <Toaster
+          position="top-center"
+          gutter={10}
+          toastOptions={{
+            duration: 3200,
+            style: {
+              background: '#f8fafc',
+              color: '#111827',
+              border: '1px solid #d1d5db',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: 600,
+            },
+            success: {
+              iconTheme: { primary: '#59deca', secondary: '#0d161a' },
+              style: { border: '1px solid rgba(89, 222, 202, 0.45)' },
+            },
+            error: {
+              iconTheme: { primary: '#f87171', secondary: '#0d161a' },
+              style: {
+                border: '1px solid rgba(248, 113, 113, 0.45)',
+                color: '#f87171',
+              },
+            },
+          }}
+        />
       </body>
     </html>
   );

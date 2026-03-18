@@ -6,7 +6,6 @@ import { EventFields } from "@/database";
 import { getSimilarEventsBySlug } from '@/lib/actions/event.actions';
 import EventCard from "@/components/EventCard";
 import {BookingProvider} from "@/lib/context/booking-context";
-import { cacheLife } from "next/cache";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 type EventDetails = EventFields & {
@@ -14,8 +13,6 @@ type EventDetails = EventFields & {
 };
 
 const EventDetailsPage = async ({ params }: { params: Promise<{ slug: string }> }) => {
-    'use cache';
-    cacheLife('hours');
     const { slug } = await params;// unwrap the Promise
     if (!BASE_URL) {
         throw new Error("NEXT_PUBLIC_BASE_URL environment variable is not set");
