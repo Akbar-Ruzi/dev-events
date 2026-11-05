@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { v2 as cloudinary } from 'cloudinary';
+import { auth } from "@/auth";
 
 import connectDB from "@/lib/mongodb";
 import Event from '@/database/event.model';
@@ -11,7 +12,29 @@ type CloudinaryUploadResult = {
 
 export async function POST(req: NextRequest) {
 	try {
+		const session = await auth();
+		if (!session?.user) {
+			return NextResponse.json(
+				{ message: "You must be signed in to create an event." },
+				{ status: 401 }
+			);
+		}
+
+		const userId = session.user.id;
+		const userRole = session.user.role;
+
 		await connectDB();
+
+		if (userRole !== "admin") {
+			const existingCount = await Event.countDocuments({ createdBy: userId });
+			if (existingCount >= 2) {
+				return NextResponse.json(
+					{ message: "You have reached the maximum limit of 2 events." },
+					{ status: 403 }
+				);
+			}
+
+		}
 
 		const formData = await req.formData();
 
@@ -50,6 +73,7 @@ export async function POST(req: NextRequest) {
 			image: uploadResult.secure_url,
 			tags: JSON.parse(formData.get("tags") as string),
 			agenda: JSON.parse(formData.get("agenda") as string),
+			createdBy: userId,
 		};
 
 		const createdEvent = await Event.create(eventPayload);

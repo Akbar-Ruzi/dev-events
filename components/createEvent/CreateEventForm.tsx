@@ -163,7 +163,7 @@ const CreateEventForm = () => {
     };
 
     return (
-        <div className="create-event-card">
+        <div className="event-form">
             <form id="create-event-form" onSubmit={handleSubmit} noValidate>
                 <TextInputField
                     label="Title"

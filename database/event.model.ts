@@ -1,4 +1,4 @@
-import { Schema, model, models, Document } from 'mongoose';
+import { Schema, model, models, Document, Types } from 'mongoose';
 // Base event data type without MongoDB document properties and it is is the blueprint of the event data
 export interface EventFields {
   title: string;
@@ -14,7 +14,7 @@ export interface EventFields {
   audience: string;
   agenda: string[];
   organizer: string;
-  tags: string[];  
+  tags: string[];
 }
 
 // IEvent full Mongoose event document type and it is the real database document object created from that blueprint(EventFields)
@@ -23,6 +23,7 @@ export interface EventFields {
 interface IEvent extends EventFields, Document {
   createdAt: Date;
   updatedAt: Date;
+  createdBy: Types.ObjectId; // Reference to the User who created the event
 }
 
 const EventSchema = new Schema<IEvent>(
@@ -100,6 +101,12 @@ const EventSchema = new Schema<IEvent>(
       required: [true, 'Organizer is required'],
       trim: true,
     },
+    createdBy: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: [true, 'CreatedBy is required'],
+      index: true, // Add index for better query performance on createdBy field
+    },
     tags: {
       type: [String],
       required: [true, 'Tags are required'],
@@ -116,21 +123,20 @@ const EventSchema = new Schema<IEvent>(
 
 // Pre-save hook for slug generation and data normalization
 EventSchema.pre('save', function (next) {
-  const event = this as IEvent;
 
   // Generate slug only if title changed or document is new
-  if (event.isModified('title') || event.isNew) {
-    event.slug = generateSlug(event.title);
+  if (this.isModified('title') || this.isNew) {
+    this.slug = generateSlug(this.title);
   }
 
   // Normalize date to ISO format if it's not already
-  if (event.isModified('date')) {
-    event.date = normalizeDate(event.date);
+  if (this.isModified('date')) {
+    this.date = normalizeDate(this.date);
   }
 
   // Normalize time format (HH:MM)
-  if (event.isModified('time')) {
-    event.time = normalizeTime(event.time);
+  if (this.isModified('time')) {
+    this.time = normalizeTime(this.time);
   }
 
   next();
@@ -161,25 +167,25 @@ function normalizeTime(timeString: string): string {
   // Handle various time formats and convert to HH:MM (24-hour format)
   const timeRegex = /^(\d{1,2}):(\d{2})(\s*(AM|PM))?$/i;
   const match = timeString.trim().match(timeRegex);
-  
+
   if (!match) {
     throw new Error('Invalid time format. Use HH:MM or HH:MM AM/PM');
   }
-  
+
   let hours = parseInt(match[1]);
   const minutes = match[2];
   const period = match[4]?.toUpperCase();
-  
+
   if (period) {
     // Convert 12-hour to 24-hour format
     if (period === 'PM' && hours !== 12) hours += 12;
     if (period === 'AM' && hours === 12) hours = 0;
   }
-  
+
   if (hours < 0 || hours > 23 || parseInt(minutes) < 0 || parseInt(minutes) > 59) {
     throw new Error('Invalid time values');
   }
-  
+
   return `${hours.toString().padStart(2, '0')}:${minutes}`;
 }
 

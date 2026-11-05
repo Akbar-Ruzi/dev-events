@@ -6,6 +6,7 @@ import LightRays from '@/components/LightRays';
 import Navbar from "@/components/Navbar";
 import { Toaster } from 'react-hot-toast';
 import { NavbarLockProvider } from "@/lib/context/navbar-lock-context";
+import { auth } from "@/auth";
 
 const schibstedGrotesk = Schibsted_Grotesk({
   variable: "--font-schibsted-grotesk",
@@ -22,6 +23,23 @@ export const metadata: Metadata = {
   description: "The Hub for Every Dev Event You Mustn't Miss",
 };
 
+async function NavbarWithAuth() {
+  const session = await auth();
+
+  return (
+    <Navbar
+      user={
+        session?.user
+          ? {
+            name: session.user.name || null,
+            role: session.user.role,
+          }
+          : null
+      }
+    />
+  );
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -34,7 +52,7 @@ export default function RootLayout({
       >
         <NavbarLockProvider>
           <Suspense fallback={null}>
-            <Navbar />
+            <NavbarWithAuth />
           </Suspense>
           <div className="absolute inset-0 top-0 z-[-1] min-h-screen">
             <LightRays
