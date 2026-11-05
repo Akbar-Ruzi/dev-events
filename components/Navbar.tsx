@@ -3,11 +3,16 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { signOut } from "next-auth/react";
 import { useNavbarLock } from "@/lib/context/navbar-lock-context";
 
-type NavLink = "home" | "events" | "create";
+type NavLink = "home" | "events" | "create" | null;
+type NavbarUser = {
+    name: string | null;
+    role: 'user' | 'admin';
+} | null;
 
-const Navbar = () => {
+const Navbar = ({ user }: { user: NavbarUser }) => {
     const { isNavbarDisabled } = useNavbarLock();
     const pathname = usePathname();
     const router = useRouter();
@@ -17,6 +22,7 @@ const Navbar = () => {
 
     // This function determines which link should be active based on the URL.
     const getActiveLink = (currentPathname: string, hash?: string): NavLink => {
+        if (currentPathname === "/auth/sign-in" || currentPathname === "/auth/sign-up") return null;
         if (currentPathname === "/events/create") return "create";
         if (currentPathname.startsWith("/events")) return "events";
         if (currentPathname === "/" && hash === "#events") return "events";
@@ -37,8 +43,9 @@ const Navbar = () => {
 
     const isHome = activeLink === "home";
     const navStateClass = isOpen ? "nav-menu-open" : "nav-menu-closed";
-    const getLinkClass = (linkName: NavLink) =>
+    const getLinkClass = (linkName: Exclude<NavLink, null>) =>
         activeLink === linkName ? "nav-cta" : "nav-link";
+    const userLabel = user?.name?.trim() || (user?.role === "admin" ? "Admin" : "Account");
 
     const guardNav = (e: React.MouseEvent<HTMLElement>) => {
         if (!isNavbarDisabled) return false;
@@ -64,6 +71,12 @@ const Navbar = () => {
             setTimeout(() => window.scrollTo({ top: 0, behavior: "instant" }), 0);
         }
     };
+
+    const handleSignOut  = async () => {
+        if (isNavbarDisabled) return;
+        setIsOpen(false);
+        await signOut({ callbackUrl: "/" });
+    }
 
     return (
         <header>
@@ -133,6 +146,43 @@ const Navbar = () => {
                             Create Event
                         </Link>
                     </li>
+                    {user ? (
+                        <li className="nav-auth-group">
+                            <span className="nav-user-chip">{userLabel}</span>
+                            <button
+                                type="button"
+                                className="nav-auth-btn"
+                                disabled={isNavbarDisabled}
+                                aria-disabled={isNavbarDisabled}
+                                onClick={handleSignOut}
+                            >
+                                Sign Out
+                            </button>
+                        </li>
+                    ) : (
+                        <li className="nav-auth-group">
+                            <Link
+                                href="/auth/sign-in"
+                                className={pathname === "/auth/sign-in" ? "nav-cta" : "nav-link"}
+                                onClick={(e) => {
+                                    if (guardNav(e)) return;
+                                    setIsOpen(false);
+                                }}
+                            >
+                                Sign In
+                            </Link>
+                            <Link
+                                href="/auth/sign-up"
+                                className={pathname === "/auth/sign-up" ? "nav-cta" : "nav-link"}
+                                onClick={(e) => {
+                                    if (guardNav(e)) return;
+                                    setIsOpen(false);
+                                }}
+                            >
+                                Sign Up
+                            </Link>
+                        </li>
+                    )}
                 </ul>
             </nav>
         </header>

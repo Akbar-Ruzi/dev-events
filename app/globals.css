@@ -185,6 +185,26 @@
         @apply absolute right-0 top-14 w-44 flex-col gap-3 rounded-md border border-dark-200 bg-dark-100 p-4 sm:static sm:w-auto sm:flex sm:flex-row sm:items-center sm:gap-6 sm:border-0 sm:bg-transparent sm:p-0;
     }
 
+    .nav-auth-group {
+        @apply flex flex-col gap-3 sm:flex-row sm:items-center;
+    }
+
+    .nav-user-chip {
+        @apply rounded-full border border-dark-200 px-3 py-1.5 text-sm text-light-100;
+    }
+
+    .nav-auth-btn {
+        @apply rounded-md border border-dark-200 px-3 py-1.5 text-sm font-medium text-light-100 transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-60;
+    }
+
+    .event-form {
+        @apply bg-dark-100 border-dark-200 card-shadow mx-auto w-full max-w-4xl rounded-[10px] border px-5 py-6 sm:px-8;
+    }
+
+    .auth-page {
+        @apply mx-auto flex w-full max-w-4xl justify-center pt-2 sm:pt-4;
+    }
+
     .nav-menu-open {
         @apply flex;
     }
@@ -281,13 +301,9 @@
         h1 {
             @apply text-center mt-0 mb-6 text-3xl sm:text-5xl md:text-6xl;
         }
-
-        .create-event-card {
-            @apply bg-dark-100 border-dark-200 card-shadow mx-auto w-full max-w-4xl rounded-[10px] border px-5 py-6 sm:px-8;
-        }
     }
 
-    #create-event-form {
+    .event-form form {
         @apply flex flex-col gap-6;
 
         .form-field {
