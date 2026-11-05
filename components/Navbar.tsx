@@ -83,7 +83,7 @@ const Navbar = ({ user }: { user: NavbarUser }) => {
             <nav aria-label="Main navigation" className="relative">
                 <Link href='/' className="logo" onClick={handleGoHome}>
                     <Image src="/icons/logo.png" alt="logo" width={24} height={24} />
-                    <p>DevEvent</p>
+                    <p>StackMeet</p>
                 </Link>
 
                 <button

@@ -203,7 +203,7 @@ const CreateEventForm = () => {
                     label="Organizer"
                     id="organizer"
                     value={formValues.organizer}
-                    placeholder="e.g. DevEvent Team"
+                    placeholder="e.g. StackMeet Team"
                     error={fieldErrors.organizer}
                     onChange={handleChange}
                 />

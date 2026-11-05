@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
 
 		const uploadResult = await new Promise<CloudinaryUploadResult>((resolve, reject) => {
 			cloudinary.uploader
-				.upload_stream({ resource_type: "image", folder: "DevEvent" }, (error, result) => {
+				.upload_stream({ resource_type: "image", folder: "StackMeet" }, (error, result) => {
 					if (error) return reject(error);
 					if (!result?.secure_url) return reject(new Error("Cloudinary upload failed"));
 					resolve({ secure_url: result.secure_url });
