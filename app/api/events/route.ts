@@ -71,8 +71,8 @@ export async function POST(req: NextRequest) {
 		const eventPayload = {
 			...eventFields,
 			image: uploadResult.secure_url,
-			tags: JSON.parse(formData.get("tags") as string),
-			agenda: JSON.parse(formData.get("agenda") as string),
+			tags: JSON.parse((formData.get("tags") as string | null) ?? "[]"),
+			agenda: JSON.parse((formData.get("agenda") as string | null) ?? "[]"),
 			createdBy: userId,
 		};
 

@@ -22,12 +22,12 @@ const EventContent = ({event}: Props) => {
                 <h2>Event Details</h2>
                 <EventDetailsItem icon="/icons/calendar.svg" alt="calendar" label={date} />
                 <EventDetailsItem icon="/icons/clock.svg" alt="clock" label={time} />
-                <EventDetailsItem icon="/icons/pin.svg" alt="pin" label={location} />
+                {location && <EventDetailsItem icon="/icons/pin.svg" alt="pin" label={location} />}
                 <EventDetailsItem icon="/icons/mode.svg" alt="mode" label={mode} />
                 <EventDetailsItem icon="/icons/audience.svg" alt="audience" label={audience} />
             </section>
 
-            <EventAgenda agendaItems={agenda ?? []} />
+            {agenda && agenda.length > 0 && <EventAgenda agendaItems={agenda} />}
             <section className="flex-col-gap-2">
                 <h2>About the Organizer</h2>
                 <p>{organizer}</p>
