@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 
 import EventContent from "@/components/EventContent";
@@ -12,7 +13,11 @@ type EventDetails = EventFields & {
   _id: string;
 };
 
-const EventDetailsPage = async ({ params }: { params: Promise<{ slug: string }> }) => {
+type EventPageProps = {
+    params: Promise<{ slug: string }>;
+};
+
+const EventDetailsContent = async ({ params }: EventPageProps) => {
     const { slug } = await params;// unwrap the Promise
     if (!BASE_URL) {
         throw new Error("NEXT_PUBLIC_BASE_URL environment variable is not set");
@@ -56,6 +61,14 @@ const EventDetailsPage = async ({ params }: { params: Promise<{ slug: string }> 
                 </div>
             </div>
         </section>
+    )
+}
+
+const EventDetailsPage = ({ params }: EventPageProps) => {
+    return (
+        <Suspense fallback={<div>Loading event...</div>}>
+            <EventDetailsContent params={params} />
+        </Suspense>
     )
 }
 
