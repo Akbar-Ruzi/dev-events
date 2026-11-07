@@ -1,5 +1,5 @@
-import ExploreBtn from "@/components/ExploreBtn";
-import EventCard from "@/components/EventCard";
+import ExploreBtn from "@/components/home/ExploreBtn";
+import EventCard from "@/components/events/EventCard";
 import { EventFields } from "@/database";
 import { Suspense } from "react";
 

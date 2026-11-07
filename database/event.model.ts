@@ -1,4 +1,10 @@
 import { Schema, model, models, Document, Types } from 'mongoose';
+
+export interface AgendaItem {
+  time: string;
+  item: string;
+}
+
 // Base event data type without MongoDB document properties and it is is the blueprint of the event data
 export interface EventFields {
   title: string;
@@ -6,15 +12,16 @@ export interface EventFields {
   description: string;
   overview: string;
   image: string;
-  venue: string;
-  location: string;
+  venue?: string; // Required for in-person and hybrid events.
+  location?: string; // Required for in-person and hybrid events.
+  onlineUrl?: string; // For online and hybrid events. Hidden from queries by default.
   date: string;
   time: string;
-  mode: 'online' | 'offline' | 'hybrid';
+  mode: 'online' | 'in-person' | 'hybrid';
   audience: string;
-  agenda: string[];
+  agenda?: AgendaItem[];
   organizer: string;
-  tags: string[];
+  tags?: string[];
 }
 
 // IEvent full Mongoose event document type and it is the real database document object created from that blueprint(EventFields)
@@ -36,6 +43,7 @@ const EventSchema = new Schema<IEvent>(
     },
     slug: {
       type: String,
+      immutable: true,
       unique: true,
       lowercase: true,
       trim: true,
@@ -59,13 +67,22 @@ const EventSchema = new Schema<IEvent>(
     },
     venue: {
       type: String,
-      required: [true, 'Venue is required'],
+      required: [needsPhysicalPlace, 'Venue is required for in-person and hybrid events'],
       trim: true,
     },
     location: {
       type: String,
-      required: [true, 'Location is required'],
+      required: [needsPhysicalPlace, 'Location is required for in-person and hybrid events'],
       trim: true,
+    },
+    onlineUrl: {
+      type: String,
+      trim: true,
+      select: false, // Keeps the link out of public responses. Use .select('+onlineUrl') to read it.
+      validate: {
+        validator: isHttpUrl,
+        message: 'Online link must be a valid http or https URL',
+      },
     },
     date: {
       type: String,
@@ -79,8 +96,8 @@ const EventSchema = new Schema<IEvent>(
       type: String,
       required: [true, 'Mode is required'],
       enum: {
-        values: ['online', 'offline', 'hybrid'],
-        message: 'Mode must be either online, offline, or hybrid',
+        values: ['online', 'in-person', 'hybrid'],
+        message: 'Mode must be either online, in-person, or hybrid',
       },
     },
     audience: {
@@ -89,12 +106,21 @@ const EventSchema = new Schema<IEvent>(
       trim: true,
     },
     agenda: {
-      type: [String],
-      required: [true, 'Agenda is required'],
-      validate: {
-        validator: (v: string[]) => v.length > 0,
-        message: 'At least one agenda item is required',
-      },
+      type: [
+        {
+          _id: false,
+          time: {
+            type: String,
+            required: [true, 'Agenda item time is required'],
+            trim: true,
+          },
+          item: {
+            type: String,
+            required: [true, 'Agenda item text is required'],
+            trim: true,
+          },
+        },
+      ],
     },
     organizer: {
       type: String,
@@ -109,11 +135,6 @@ const EventSchema = new Schema<IEvent>(
     },
     tags: {
       type: [String],
-      required: [true, 'Tags are required'],
-      validate: {
-        validator: (v: string[]) => v.length > 0,
-        message: 'At least one tag is required',
-      },
     },
   },
   {
@@ -124,8 +145,8 @@ const EventSchema = new Schema<IEvent>(
 // Pre-save hook for slug generation and data normalization
 EventSchema.pre('save', function (next) {
 
-  // Generate slug only if title changed or document is new
-  if (this.isModified('title') || this.isNew) {
+  // Generate the slug only once, so links people have shared keep working after an edit
+  if (this.isNew) {
     this.slug = generateSlug(this.title);
   }
 
@@ -141,6 +162,21 @@ EventSchema.pre('save', function (next) {
 
   next();
 });
+
+// Helper function to require venue and location only when the event has a physical place
+function needsPhysicalPlace(this: IEvent): boolean {
+  return this.mode === 'in-person' || this.mode === 'hybrid';
+}
+
+// Helper function to allow only http and https links
+function isHttpUrl(value: string): boolean {
+  try {
+    const { protocol } = new URL(value);
+    return protocol === 'http:' || protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
 
 // Helper function to generate URL-friendly slug
 function generateSlug(title: string): string {
@@ -188,9 +224,6 @@ function normalizeTime(timeString: string): string {
 
   return `${hours.toString().padStart(2, '0')}:${minutes}`;
 }
-
-// Create unique index on slug for better performance
-EventSchema.index({ slug: 1 }, { unique: true });
 
 // Create compound index for common queries
 EventSchema.index({ date: 1, mode: 1 });

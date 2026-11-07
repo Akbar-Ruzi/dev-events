@@ -1,10 +1,11 @@
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 
-import EventContent from "@/components/EventContent";
-import BookForm from "@/components/BookForm";
+import EventContent from "@/components/events/EventContent";
+import BookForm from "@/components/events/BookForm";
 import { EventFields } from "@/database";
 import { getSimilarEventsBySlug } from '@/lib/actions/event.actions';
-import EventCard from "@/components/EventCard";
+import EventCard from "@/components/events/EventCard";
 import {BookingProvider} from "@/lib/context/booking-context";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
@@ -12,7 +13,11 @@ type EventDetails = EventFields & {
   _id: string;
 };
 
-const EventDetailsPage = async ({ params }: { params: Promise<{ slug: string }> }) => {
+type EventPageProps = {
+    params: Promise<{ slug: string }>;
+};
+
+const EventDetailsContent = async ({ params }: EventPageProps) => {
     const { slug } = await params;// unwrap the Promise
     if (!BASE_URL) {
         throw new Error("NEXT_PUBLIC_BASE_URL environment variable is not set");
@@ -56,6 +61,14 @@ const EventDetailsPage = async ({ params }: { params: Promise<{ slug: string }> 
                 </div>
             </div>
         </section>
+    )
+}
+
+const EventDetailsPage = ({ params }: EventPageProps) => {
+    return (
+        <Suspense fallback={<div>Loading event...</div>}>
+            <EventDetailsContent params={params} />
+        </Suspense>
     )
 }
 

@@ -34,7 +34,7 @@ const UserSchema = new Schema<IUser>(
         password: {
             type: String,
             required: [true, "Password is required"],
-            minlength: [6, "Password must be at least 6 characters"],
+            minlength: [8, "Password must be at least 8 characters"],
         },
         phone: {
             type: String,
@@ -48,8 +48,6 @@ const UserSchema = new Schema<IUser>(
     },
     { timestamps: true }
 );
-
-UserSchema.index({email: 1}, {unique: true});
 
 const User = models.User || model<IUser>("User", UserSchema);
 

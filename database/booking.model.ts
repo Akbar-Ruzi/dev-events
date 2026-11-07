@@ -4,7 +4,11 @@ import Event from './event.model';
 // TypeScript interface for Booking document
 export interface IBooking extends Document {
   eventId: Types.ObjectId;
+  userId?: Types.ObjectId; // Set when a signed-in user books; empty for guests
+  name: string;
   email: string;
+  phone?: string;
+  hiddenByUser: boolean; // Hides a past booking from the user's list; the record stays
   createdAt: Date;
   updatedAt: Date;
 }
@@ -15,6 +19,17 @@ const BookingSchema = new Schema<IBooking>(
       type: Schema.Types.ObjectId,
       ref: 'Event',
       required: [true, 'Event ID is required'],
+    },
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      index: true,
+    },
+    name: {
+      type: String,
+      required: [true, 'Name is required'],
+      trim: true,
+      maxlength: [50, 'Name cannot exceed 50 characters'],
     },
     email: {
       type: String,
@@ -29,6 +44,15 @@ const BookingSchema = new Schema<IBooking>(
         },
         message: 'Please provide a valid email address',
       },
+    },
+    phone: {
+      type: String,
+      trim: true,
+      select: false, // Private: left out of queries unless requested with .select('+phone')
+    },
+    hiddenByUser: {
+      type: Boolean,
+      default: false,
     },
   },
   {

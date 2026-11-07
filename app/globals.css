@@ -11,8 +11,29 @@
     --color-dark-100: #0d161a;
     --color-dark-200: #182830;
     --radius: 0.625rem;
-    --background: #030708;
-    --foreground: #ffffff;
+
+    /* Design tokens */
+    color-scheme: dark;
+    --bg: #0B0D0C;
+    --surface: #0F1211;
+    --field: #121614;
+    --line: #1F2421;
+    --border: #2A302C;
+    --text: #EDEFEA;
+    --body: #C9CEC9;
+    --muted: #9AA39F;
+    --accent: #C6F432;
+    --on-accent: #0B0D0C;
+    --danger: #EF4444;
+    --danger-text: #FCA5A5;
+    --danger-outline: #5B2626;
+    --danger-border: #F87171;
+    --format-online: #38BDF8;
+    --format-in-person: #FB923C;
+    --format-hybrid: #F472B6;
+
+    --background: var(--bg);
+    --foreground: var(--text);
     --card: oklch(1 0 0);
     --card-foreground: oklch(0.145 0 0);
     --popover: oklch(1 0 0);
@@ -21,12 +42,9 @@
     --primary-foreground: oklch(0.985 0 0);
     --secondary: oklch(0.97 0 0);
     --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
     --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
     --accent-foreground: oklch(0.205 0 0);
     --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0 0);
     --input: oklch(0.922 0 0);
     --ring: oklch(0.708 0 0);
     --chart-1: oklch(0.646 0.222 41.116);
@@ -45,6 +63,20 @@
 }
 
 @theme inline {
+    --color-bg: var(--bg);
+    --color-surface: var(--surface);
+    --color-field: var(--field);
+    --color-line: var(--line);
+    --color-text: var(--text);
+    --color-body: var(--body);
+    --color-on-accent: var(--on-accent);
+    --color-danger: var(--danger);
+    --color-danger-text: var(--danger-text);
+    --color-danger-outline: var(--danger-outline);
+    --color-danger-border: var(--danger-border);
+    --color-format-online: var(--format-online);
+    --color-format-in-person: var(--format-in-person);
+    --color-format-hybrid: var(--format-hybrid);
     --color-background: var(--background);
     --color-foreground: var(--foreground);
     --color-blue: var(--color-blue);
@@ -53,8 +85,8 @@
     --color-border-dark: var(--color-border-dark);
     --color-dark-100: var(--color-dark-100);
     --color-dark-200: var(--color-dark-200);
-    --font-schibsted-grotesk: var(--font-schibsted-grotesk);
-    --font-martian-mono: var(--font-martian-mono);
+    --font-sans: var(--font-space-grotesk);
+    --font-mono: var(--font-jetbrains-mono);
     --color-sidebar-ring: var(--sidebar-ring);
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -98,10 +130,6 @@
     @apply to-blue bg-gradient-to-b from-white via-white bg-clip-text font-semibold text-transparent;
 }
 
-@utility glass {
-    @apply bg-[#12121280]/50 rounded-md bg-clip-padding backdrop-filter backdrop-blur-xl border-b border-border-dark;
-}
-
 @utility card-shadow {
     box-shadow: 0px 4px 40px 0px #00000066;
 }
@@ -122,11 +150,18 @@
     }
 
     body {
-        @apply bg-background text-foreground;
+        @apply bg-background text-foreground font-sans leading-[normal];
     }
 
     main {
         @apply mx-auto container flex flex-col sm:px-10 px-5 py-10;
+    }
+
+    /* Redesigned pages set their own width and padding. Next.js keeps visited pages
+       in the DOM with display: none, so hidden ones have to be ignored here. */
+    main:has(> [data-full-width]:not([style*="none"])) {
+        max-width: none;
+        padding: 0;
     }
 
     h1 {
@@ -134,7 +169,7 @@
     }
 
     h3 {
-        @apply font-schibsted-grotesk text-2xl font-bold;
+        @apply font-sans text-2xl font-bold;
     }
 
 }
@@ -145,58 +180,6 @@
         @apply border-dark-200 bg-dark-100 flex-center w-fit cursor-pointer gap-2 rounded-full border px-8 py-3.5 text-center max-sm:w-full;
     }
 
-    header {
-        @apply glass sticky top-0 z-50;
-
-        nav {
-            @apply flex flex-row justify-between mx-auto container sm:px-10 px-5 py-4;
-        }
-
-        .logo {
-            @apply flex flex-row items-center gap-2;
-
-            p {
-                @apply text-xl font-bold italic max-sm:hidden;
-            }
-        }
-
-        ul {
-            @apply flex flex-row items-center gap-6;
-        }
-    }
-
-    .nav-link {
-        @apply text-sm sm:text-base text-light-100 transition-colors hover:text-primary;
-    }
-
-    .nav-link-active {
-        @apply text-primary;
-    }
-
-    .nav-cta {
-        @apply rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-black hover:bg-primary/90;
-    }
-
-    .nav-menu-btn {
-        @apply sm:hidden rounded-md border border-dark-200 px-3 py-1.5 text-sm;
-    }
-
-    .nav-menu {
-        @apply absolute right-0 top-14 w-44 flex-col gap-3 rounded-md border border-dark-200 bg-dark-100 p-4 sm:static sm:w-auto sm:flex sm:flex-row sm:items-center sm:gap-6 sm:border-0 sm:bg-transparent sm:p-0;
-    }
-
-    .nav-auth-group {
-        @apply flex flex-col gap-3 sm:flex-row sm:items-center;
-    }
-
-    .nav-user-chip {
-        @apply rounded-full border border-dark-200 px-3 py-1.5 text-sm text-light-100;
-    }
-
-    .nav-auth-btn {
-        @apply rounded-md border border-dark-200 px-3 py-1.5 text-sm font-medium text-light-100 transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-60;
-    }
-
     .event-form {
         @apply bg-dark-100 border-dark-200 card-shadow mx-auto w-full max-w-4xl rounded-[10px] border px-5 py-6 sm:px-8;
     }
@@ -205,40 +188,8 @@
         @apply mx-auto flex w-full max-w-4xl justify-center pt-2 sm:pt-4;
     }
 
-    .nav-menu-open {
-        @apply flex;
-    }
-
-    .nav-menu-closed {
-        @apply hidden sm:flex;
-    }
-
     .events {
         @apply grid md:grid-cols-3 gap-x-10 gap-y-14 sm:grid-cols-2 grid-cols-1;
-    }
-
-    #event-card {
-        @apply flex flex-col gap-3;
-
-        .poster {
-            @apply h-[300px] w-full rounded-lg object-cover;
-        }
-
-        .title {
-            @apply text-[20px] font-semibold line-clamp-1;
-        }
-
-        p {
-            @apply text-light-200 text-sm font-light;
-        }
-
-        .datetime {
-            @apply text-light-200 flex flex-row flex-wrap items-center gap-4;
-
-            div {
-                @apply flex flex-row gap-2;
-            }
-        }
     }
 
     #event {
@@ -279,7 +230,7 @@
         }
 
         h2 {
-            @apply font-schibsted-grotesk text-2xl font-bold;
+            @apply font-sans text-2xl font-bold;
         }
 
         p {

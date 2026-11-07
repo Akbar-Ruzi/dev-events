@@ -92,10 +92,19 @@ const CreateEventForm = () => {
             .map((tag) => tag.trim())
             .filter(Boolean);
 
+        // Temporary "time | item" format until the Step 8 wizard adds separate inputs.
         const parsedAgenda = formValues.agenda
             .split('\n')
-            .map((item) => item.trim())
-            .filter(Boolean);
+            .map((line) => line.trim())
+            .filter(Boolean)
+            .map((line) => {
+                const separatorIndex = line.indexOf('|');
+                if (separatorIndex === -1) return { time: '', item: line };
+                return {
+                    time: line.slice(0, separatorIndex).trim(),
+                    item: line.slice(separatorIndex + 1).trim(),
+                };
+            });
 
         if (parsedTags.length === 0) {
             setFieldErrors((prev) => ({ ...prev, tags: 'At least one tag is required.' }));
@@ -104,6 +113,11 @@ const CreateEventForm = () => {
 
         if (parsedAgenda.length === 0) {
             setFieldErrors((prev) => ({ ...prev, agenda: 'At least one agenda item is required.' }));
+            return;
+        }
+
+        if (parsedAgenda.some(({ time, item }) => !time || !item)) {
+            setFieldErrors((prev) => ({ ...prev, agenda: 'Write each agenda line as: time | item.' }));
             return;
         }
 
@@ -203,7 +217,7 @@ const CreateEventForm = () => {
                     label="Organizer"
                     id="organizer"
                     value={formValues.organizer}
-                    placeholder="e.g. DevEvent Team"
+                    placeholder="e.g. StackMeet Team"
                     error={fieldErrors.organizer}
                     onChange={handleChange}
                 />
@@ -237,7 +251,7 @@ const CreateEventForm = () => {
                     <label htmlFor="mode" className="required-field">Mode</label>
                     <select name="mode" id="mode" required value={formValues.mode} onChange={handleChange}>
                         <option value="online">Online</option>
-                        <option value="offline">Offline</option>
+                        <option value="in-person">In-person</option>
                         <option value="hybrid">Hybrid</option>
                     </select>
                 </div>
@@ -261,7 +275,7 @@ const CreateEventForm = () => {
                     label="Agenda"
                     id="agenda"
                     value={formValues.agenda}
-                    placeholder={"One item per line\nIntroduction\nLive demo\nQ&A"}
+                    placeholder={"One item per line, as time | item\n10:00 | Introduction\n10:30 | Live demo\n11:00 | Q&A"}
                     error={fieldErrors.agenda}
                     onChange={handleChange}
                 />
