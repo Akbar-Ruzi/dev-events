@@ -1,21 +1,25 @@
 import type { Metadata } from "next";
-import { Schibsted_Grotesk, Martian_Mono } from "next/font/google";
+import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import { Suspense } from "react";
 import "./globals.css";
-import LightRays from '@/components/LightRays';
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import { Toaster } from 'react-hot-toast';
 import { NavbarLockProvider } from "@/lib/context/navbar-lock-context";
 import { auth } from "@/auth";
 
-const schibstedGrotesk = Schibsted_Grotesk({
-  variable: "--font-schibsted-grotesk",
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-space-grotesk",
   subsets: ["latin"],
+  weight: ["400", "500", "700"],
+  fallback: ["system-ui", "sans-serif"],
 });
 
-const martianMono = Martian_Mono({
-  variable: "--font-martian_mono",
+const jetBrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
   subsets: ["latin"],
+  weight: ["400", "500"],
+  fallback: ["monospace"],
 });
 
 export const metadata: Metadata = {
@@ -32,7 +36,7 @@ async function NavbarWithAuth() {
         session?.user
           ? {
             name: session.user.name || null,
-            role: session.user.role,
+            email: session.user.email || null,
           }
           : null
       }
@@ -46,30 +50,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${schibstedGrotesk.variable} ${martianMono.variable} min-h-screen antialiased`}
-      >
+    <html lang="en" className={`${spaceGrotesk.variable} ${jetBrainsMono.variable}`}>
+      <body className="flex min-h-screen flex-col antialiased">
         <NavbarLockProvider>
           <Suspense fallback={null}>
             <NavbarWithAuth />
           </Suspense>
-          <div className="absolute inset-0 top-0 z-[-1] min-h-screen">
-            <LightRays
-              raysOrigin="top-center-offset"
-              raysColor="#5dfeca"
-              raysSpeed={0.5}
-              lightSpread={0.9}
-              rayLength={1.4}
-              followMouse={true}
-              mouseInfluence={0.02}
-              noiseAmount={0.0}
-              distortion={0.01}
-            />
-          </div>
-          <main>
+          <main className="flex-1">
             {children}
           </main>
+          <Footer />
         </NavbarLockProvider>
         <Toaster
           position="top-center"
