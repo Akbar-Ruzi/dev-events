@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import AccountMenu, { type AccountUser } from "@/components/AccountMenu";
+import AccountMenu, { type AccountUser } from "@/components/layout/AccountMenu";
 import { useNavbarLock } from "@/lib/context/navbar-lock-context";
 
 const getActiveHref = (pathname: string) => {

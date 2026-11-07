@@ -1,7 +1,7 @@
 import Image from "next/image";
-import EventDetailsItem from "@/components/EventDetailsItem";
-import EventAgenda from "@/components/EventAgenda";
-import EventTags from "@/components/EventTags";
+import EventDetailsItem from "@/components/events/EventDetailsItem";
+import EventAgenda from "@/components/events/EventAgenda";
+import EventTags from "@/components/events/EventTags";
 import { EventFields } from "@/database";
 
 type Props = {

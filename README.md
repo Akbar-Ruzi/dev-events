@@ -53,7 +53,8 @@ stack-meet/
 ├── app/                        # Pages and API routes
 │   ├── page.tsx                # Home page
 │   ├── layout.tsx              # Layout shared by every page
-│   ├── globals.css             # Global styles
+│   ├── not-found.tsx           # 404 page
+│   ├── globals.css             # Global styles and design tokens
 │   ├── auth/
 │   │   ├── sign-in/            # Sign-in page
 │   │   └── sign-up/            # Sign-up page
@@ -63,13 +64,19 @@ stack-meet/
 │   └── api/
 │       ├── auth/               # Sign-in, sign-out and sign-up endpoints
 │       └── events/             # Create, read, update and delete events
-├── components/                 # Reusable UI
+├── components/
+│   ├── ui/                     # Shared building blocks: buttons, inputs, badges
+│   ├── layout/                 # Header, account menu and footer
+│   ├── events/                 # Event card, event details and booking form
+│   ├── home/                   # Home page components
 │   ├── auth/                   # Sign-in and sign-up forms
 │   └── createEvent/            # Create event form
 ├── database/                   # Mongoose models: User, Event, Booking
 ├── lib/
 │   ├── actions/                # Server Actions for bookings and events
 │   ├── context/                # React context providers
+│   ├── constants.ts            # Shared constants
+│   ├── event-display.ts        # Date, format and place text for events
 │   ├── mongodb.ts              # Cached database connection
 │   └── utils.ts                # Shared helpers
 ├── public/                     # Icons and images
@@ -143,7 +150,9 @@ The app uses API routes and Server Actions, which both reach MongoDB through Mon
 | Model | Purpose | Main fields |
 |---|---|---|
 | **User** | An account | `name`, `email`, `password` (hashed), `phone`, `role` |
-| **Event** | An event listing | `title`, `slug`, `description`, `overview`, `image`, `date`, `time`, `mode`, `venue`, `location`, `agenda`, `tags`, `createdBy` |
+| **Event** | An event listing | `title`, `slug`, `description`, `overview`, `image`, `date`, `time`, `mode`, `venue`, `location`, `onlineUrl`, `agenda`, `tags`, `createdBy` |
 | **Booking** | A reserved spot | `eventId`, `userId`, `name`, `email`, `phone`, `hiddenByUser` |
 
 Events link to their owner through `createdBy`, and bookings link to their event through `eventId`. Guest bookings have no `userId`.
+
+An event's `mode` is `online`, `in-person` or `hybrid`. In-person and hybrid events require a `venue` and `location`. `onlineUrl` is hidden from public responses, and each `agenda` item has a `time` and an `item`.

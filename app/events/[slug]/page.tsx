@@ -1,11 +1,11 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 
-import EventContent from "@/components/EventContent";
-import BookForm from "@/components/BookForm";
+import EventContent from "@/components/events/EventContent";
+import BookForm from "@/components/events/BookForm";
 import { EventFields } from "@/database";
 import { getSimilarEventsBySlug } from '@/lib/actions/event.actions';
-import EventCard from "@/components/EventCard";
+import EventCard from "@/components/events/EventCard";
 import {BookingProvider} from "@/lib/context/booking-context";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
