@@ -43,10 +43,18 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // bcrypt has a practical 72-byte password limit; enforce it at input
-        if (password.length < 6 || password.length > 72) {
+        if (password.length < 8) {
             return NextResponse.json(
-                { message: "Password must be between 6 and 72 characters" },
+                { message: "Password must be at least 8 characters" },
+                { status: 400 }
+            );
+        }
+
+        // bcrypt only uses the first 72 bytes, and characters like emoji take more than one byte,
+        // so a password within the character limit can still be too long for bcrypt
+        if (password.length > 64 || Buffer.byteLength(password, "utf8") > 72) {
+            return NextResponse.json(
+                { message: "Password is too long. Please use a shorter one." },
                 { status: 400 }
             );
         }
